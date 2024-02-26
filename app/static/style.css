@@ -1,0 +1,44 @@
+body {
+	background-image: url('background-image.jpg');
+	background-size: 700px;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+div {
+	background-color: #fffbe7;
+	padding: 45px 130px 45px;
+	max-width: 850px;
+	margin: auto;
+	color:#0d0c1d;
+	margin-top: 25px;
+}
+
+.MICROCOW {
+	font-family: 'Times New Roman', Times, serif;
+	color: rgb(89, 86, 121);
+}
+
+h1 {
+	text-align: center;
+	color: #161b33;
+	font-size: 18px;
+}
+
+h2 {
+	text-align: center;
+	color: #ce2a35;
+	font-size: 20px;
+	margin: 0px;
+}
+
+table {
+	font-size: 14px;
+	border: 1px solid rgb(89, 86, 121);
+  	border-collapse: collapse;
+	margin: auto;
+}
+
+td {
+	font-size: 12px;
+	padding: 4px;
+}

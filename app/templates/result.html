@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <!-- This makes the website "pretty" -->
+    <link rel="stylesheet" href="/static/style.css">
+    
+    <!-- This is what displays on the tab -->
+    <title>MICROCOW: Microprobe Data Analyzer</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+
+</head>
+
+<body>
+    
+    <div>
+        
+        <center><a href="/"><img src="/static/header.png" alt="MICROCOW" width="450"></a></center>
+        <h1>electron <u>MI</u>croprobe <u>C</u>ode that <u>R</u>eturns cati<u>O</u>n fra<u>C</u>tions from <u>O</u>xide <u>W</u>eights</h1>
+        
+        <em>Moooo</em>-ve over, Excel! 🐄 <span class="MICROCOW">MICROCOW</span> is here to make your microprobe data processing much easier. Click on the "Choose File" button to upload your data. <strong>Your data must be the .XLSX file under /Data/.</strong>
+        
+        <br>
+        <br>
+        <hr>
+        <br>
+        
+        <h2>Your Data</h2>
+        <br>
+
+        {% for table in original_tables %}
+            {{ table|safe }}
+        {% endfor %}
+        
+        <br>
+        <br>
+
+        <h2>Your Cation Fractions</h2>
+        <br>
+
+        {% for table in processed_tables %}
+            {{ table|safe }}
+        {% endfor %}
+        
+        <br>
+        <hr>
+        <br>
+
+        Do you have some beef with the code or ideas on how to make it better? Send your thoughts to nicolekerrison [at] arizona [dot] edu.
+
+    </div>
+    
+</body>
+</html>

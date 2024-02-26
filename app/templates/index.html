@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <!-- This makes the website "pretty" -->
+    <link rel="stylesheet" href="/static/style.css">
+    
+    <!-- This is what displays on the tab -->
+    <title>MICROCOW: Microprobe Data Analyzer</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+
+</head>
+
+<body>
+    
+    <div>
+        
+        <center><a href="/"><img src="/static/header.png" alt="MICROCOW" width="450"></a></center>
+        <h1>electron <u>MI</u>croprobe <u>C</u>ode that <u>R</u>eturns cati<u>O</u>n fra<u>C</u>tions from <u>O</u>xide <u>W</u>eights</h1>
+        
+        <em>Moooo</em>-ve over, Excel! 🐄 <span class="MICROCOW">MICROCOW</span> is here to make your microprobe data processing much easier. Click on the "Choose File" button to upload your data. <strong>Your data must be the .XLSX file under /Data/.</strong>
+        
+        <br>
+        <br>
+        <hr>
+        <br>
+        
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            
+            <fieldset>
+                <legend>Required:</legend>
+                <label for="lname">Select your file:</label>
+                <input type="file" name="file" accept=".xlsx" required><br>
+                <label for="lname">Calculate my formulae on the basis of</label>&ensp;<input type="number" name="oxprop" required>&ensp;oxygen anions.<br>
+            </fieldset>
+
+            <br>
+
+            <fieldset>
+                <legend>Optional (Coming Soon!):</legend>
+                <input type="checkbox" name="pyroxene" value="pyroxene">
+                <label for="vehicle1">Calculate pyroxene end member compositions (En, Di, and Hd)</label><br>
+                <input type="checkbox" name="olivine" value="olivine">
+                <label for="vehicle1">Calculate olivine end member compositions (Fo and Fa)</label><br>
+                <input type="checkbox" name="plagioclase" value="plagioclase">
+                <label for="vehicle1">Calculate plagioclase end member compositions (An, Ab, and Or)</label><br>
+            </fieldset>
+
+            <br>
+                
+            <input type="submit" value="Cowculate my cation fractions!" class="submit-button">
+
+        </form>
+
+        <br>
+        <hr>
+        <br>
+
+        Do you have some beef with the code or ideas on how to make it better? Send your thoughts to nicolekerrison [at] arizona [dot] edu.
+
+    </div>
+    
+</body>
+</html>

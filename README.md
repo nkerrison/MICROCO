@@ -1,1 +1,1 @@
-# MICROCOW
+# MICROCOW: Microprobe Data Analyzer

@@ -18,7 +18,7 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload():
    
-    # --- Request Excel file from the HTML form
+    # --- Request Excel file and oxygen variable from the HTML form
     file   = request.files['file']
     oxprop = request.form.get('oxprop')
     oxprop = int(oxprop)
@@ -27,15 +27,9 @@ def upload():
     user_data_elox = pd.read_excel(file, sheet_name='El-Ox')
     user_data_stat = pd.read_excel(file, sheet_name='Stat')
 
-    # --- Find the index (location) of the cell 'Weight%'
-    weight_index = user_data_elox.columns.get_loc('Weight%')
-
     # --- Find the index (location) of the cell 'Oxide'
     oxide_index = user_data_elox.columns.get_loc('Oxide')
-
-    # --- Extract columns pertaining to 'Weight%' (needed for Det Lim)
-    weight_columns = user_data_elox.iloc[:, weight_index:oxide_index]
-
+    
     # --- Extract columns pertaining to 'Oxide'
     oxide_columns = user_data_elox.iloc[:, oxide_index:]
 
@@ -48,7 +42,43 @@ def upload():
     oxide_columns_print = oxide_columns.loc[(oxide_columns.sum(axis=1)!=0) | (oxide_columns.applymap(lambda x: isinstance(x,str))).any(axis=1)]
 
     # --- Removes the last column ("Total") from the dataframe
-    oxide_columns = oxide_columns_print.iloc[: , :-1]
+    oxide_columns = oxide_columns_print.iloc[:,:-1]
+    
+    # ----------------------------------------------------------------------------------
+    
+    # --- Find the indices of various columns of interest from the Stat sheet
+    weight_index = user_data_stat.columns.get_loc('Weight%')
+    stddev_index = user_data_stat.columns.get_loc('StdDev wt%')
+    detlim_index = user_data_stat.columns.get_loc('Det.Lim ppm(A)')
+
+    # --- Extract columns pertaining to Weight%, StdDev wt%, and Det.Lim ppm(A)
+    weight_columns = user_data_stat.iloc[:, weight_index:stddev_index]
+    stddev_columns = user_data_stat.iloc[:, stddev_index:detlim_index]
+    detlim_columns = user_data_stat.iloc[:, detlim_index:]
+
+    # --- Clean up the dataframes as before
+    weight_columns = weight_columns.iloc[1:].rename(columns=weight_columns.iloc[0])
+    weight_columns = weight_columns.replace('∞', np.inf)
+    weight_columns = weight_columns.loc[(weight_columns.sum(axis=1)!=0) | (weight_columns.applymap(lambda x: isinstance(x, str))).any(axis=1)]
+    stddev_columns = stddev_columns.iloc[1:].rename(columns=stddev_columns.iloc[0])
+    stddev_columns = stddev_columns.replace('∞', np.inf)
+    stddev_columns = stddev_columns.loc[(stddev_columns.sum(axis=1)!=0) | (stddev_columns.applymap(lambda x: isinstance(x, str))).any(axis=1)]
+    detlim_columns = detlim_columns.iloc[1:].rename(columns=detlim_columns.iloc[0])
+    detlim_columns = detlim_columns.replace('∞', np.inf)
+    detlim_columns = detlim_columns.loc[(detlim_columns.sum(axis=1)!=0) | (detlim_columns.applymap(lambda x: isinstance(x, str))).any(axis=1)]
+
+    # --- Removes the last column ("Total") from the dataframe
+    weight_columns = weight_columns.iloc[:,:-1]
+
+    # --- Convert detection limits (in ppm) to weight %
+    def convert_ppm_to_wtpercent(x):
+        if pd.isnull(x) or x == np.inf:
+            return x  # Return NaN or infinity unchanged
+        else:
+            return float(x) / 10000
+
+    # Apply the function to each element of the DataFrame
+    detlim_columns = detlim_columns.applymap(convert_ppm_to_wtpercent)
 
     # ----------------------------------------------------------------------------------
 
@@ -191,13 +221,31 @@ def upload():
     # --- Calculate cation fractions
     ratios = [ratio_of_cation_to_oxygen(x) for x in oxide_columns.columns]
     cation_fractions = number_anions.mul(ratios, axis=1)
-    cation_fractions['Total'] = cation_fractions.sum(axis=1)
 
     # --- Apply the function to all column names to extract prefixes
     prefixes = cation_fractions.columns.map(oxide_to_cation_str_converter)
 
     # --- Replace the column names with the extracted prefixes
     cation_fractions.columns = prefixes
+
+    # --- Sum the rows to get the total number of cations
+    cation_fractions['Total'] = cation_fractions.sum(axis=1)
+    
+    # --- Create a mask to locate which cells in weight_columns are less than
+    # --- their corresponding location in detlim_columns
+    mask = weight_columns < detlim_columns
+
+    # --- Replace cells in cation_fractions that are below detection with "b.d."
+    cation_fractions[mask] = "b.d."
+    
+    # --- Round values   
+    def to_float_or_nan(x):
+        try:
+            return float(x)
+        except ValueError:
+            return x
+    cation_fractions = cation_fractions.applymap(to_float_or_nan)
+    cation_fractions = cation_fractions.round(4)
 
     # --- Render template with DataFrames
     return render_template('result.html',
